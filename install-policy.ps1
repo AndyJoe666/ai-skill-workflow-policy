@@ -9,10 +9,22 @@ $bundleRoot = Split-Path -Parent $PSCommandPath
 $skillsTarget = Join-Path $CodexHome 'skills'
 New-Item -ItemType Directory -Force -Path $skillsTarget | Out-Null
 
+function Copy-SkillContents {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Source,
+        [Parameter(Mandatory = $true)]
+        [string]$Target
+    )
+
+    New-Item -ItemType Directory -Force -Path $Target | Out-Null
+    Get-ChildItem -LiteralPath $Source -Force | Copy-Item -Destination $Target -Recurse -Force
+}
+
 foreach ($name in @('mvp-workflow-router', 'mvp-coding-policy', 'skill-intake-auditor')) {
     $source = Join-Path $bundleRoot "skills\$name"
     $target = Join-Path $skillsTarget $name
-    Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
+    Copy-SkillContents -Source $source -Target $target
     Write-Output "Installed policy Skill: $name"
 }
 
@@ -32,7 +44,7 @@ if ($InstallUserOwnedPatches) {
     Get-ChildItem -LiteralPath $patchRoot -Directory | Where-Object { $_.Name -ne 'README.md' } | ForEach-Object {
         $source = $_.FullName
         $target = Join-Path $skillsTarget $_.Name
-        Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
+        Copy-SkillContents -Source $source -Target $target
         Write-Output "Applied user-owned patch: $($_.Name)"
     }
 }
