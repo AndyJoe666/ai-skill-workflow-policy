@@ -27,6 +27,7 @@ Use a plan only for Deep work or when the task has multiple dependent decisions.
 - Do not expand scope, refactor unrelated code, or pursue speculative improvements without user direction.
 - A retry must change evidence, hypothesis, or approach. After one unsuccessful meaningful retry, report the blocker or ask for direction.
 - Keep a statement of verification proportional to the selected mode. “All tests” is never a default requirement.
+- Before enabling, updating, or linking an external Skill, run `skill-security-auditor` for capability signals, then `skill-intake-auditor` for workflow-cost localization. Require human acceptance before enabling a changed Skill.
 
 ## Human acceptance gate
 
