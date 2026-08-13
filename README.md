@@ -1,5 +1,19 @@
 # AI Skill Workflow Policy
 
+> v0.2 adds an optional static security review and a link-based installation mode. It does not replace the existing MVP-first Router or turn normal coding tasks into Deep-mode work.
+
+## v0.2: security review and linked synchronization
+
+Before enabling a new or updated Skill, run `skill-security-auditor` first for source/code capability signals, then run `skill-intake-auditor` for workflow-cost localization. The two checks are complementary: one cannot prove safety, and the other cannot prove that a Skill is proportionate.
+
+For a device that keeps this repository cloned locally, use link mode to make the four policy Skills point at that clone:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install-policy.ps1 -InstallMode Link
+```
+
+Link mode never replaces an existing normal Skill directory. On an already configured device, either retain copy mode or move only the confirmed policy directories aside before linking. Pulling a reviewed repository revision then updates the linked Skills; the global `AGENTS.md` remains a deliberate manual merge so device-specific instructions are not overwritten. See `UPGRADE-0.2.md` and `SECURITY-AUDIT.md` for the exact operating procedure.
+
 这是一个面向 Codex 本地环境的工作流策略包，用于调整软件开发类任务中 Planning、Testing、Verification、代码审查、重试和多 Agent 的默认触发条件。
 
 项目采用 MVP-first 作为普通软件开发任务的默认路径：
@@ -20,6 +34,7 @@
 | `mvp-workflow-router` | 根据任务后果和复杂度，在 Direct、MVP、Deep 三种模式之间分流 |
 | `mvp-coding-policy` | 定义各模式的实现边界、测试预算和人工验收点 |
 | `skill-intake-auditor` | 扫描新安装或更新后的 Skills，标记可能导致流程膨胀的规则 |
+| `skill-security-auditor` | 在启用新或更新的 Skill 前，静态标记工具权限、脚本和来源相关的安全信号 |
 | `patches/superpowers` | 针对本次审计中部分用户自有 Superpowers Skills 的本地化版本 |
 | `overlays/SKILL-PATCH-REGISTRY.md` | 为不宜直接修改的系统或插件 Skills 记录兼容规则 |
 | `SKILL-AUDIT.md` | 2026-08-13 对当前设备启用 Skills 的审计结果快照 |
@@ -38,7 +53,8 @@ ai-skill-workflow-policy/
 ├─ skills/
 │  ├─ mvp-workflow-router/
 │  ├─ mvp-coding-policy/
-│  └─ skill-intake-auditor/
+│  ├─ skill-intake-auditor/
+│  └─ skill-security-auditor/
 ├─ patches/
 │  └─ superpowers/
 └─ overlays/
@@ -71,6 +87,7 @@ Router 只决定流程深度，不代替领域 Skill。比如处理演示文稿�
 skills/mvp-workflow-router
 skills/mvp-coding-policy
 skills/skill-intake-auditor
+skills/skill-security-auditor
 ```
 
 然后人工审阅 `OPERATING-MANUAL.md`，将适用内容合并到 `<CODEX_HOME>/AGENTS.md`。如果已有全局指令，应合并而不是直接覆盖。

@@ -1,5 +1,7 @@
 param(
     [string]$CodexHome = (Join-Path $env:USERPROFILE '.codex'),
+    [ValidateSet('Copy', 'Link')]
+    [string]$InstallMode = 'Copy',
     [switch]$InstallUserOwnedPatches,
     [switch]$InstallGlobalManual,
     [switch]$Force
@@ -21,11 +23,58 @@ function Copy-SkillContents {
     Get-ChildItem -LiteralPath $Source -Force | Copy-Item -Destination $Target -Recurse -Force
 }
 
-foreach ($name in @('mvp-workflow-router', 'mvp-coding-policy', 'skill-intake-auditor')) {
+function Link-SkillDirectory {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Source,
+        [Parameter(Mandatory = $true)]
+        [string]$Target
+    )
+
+    if (Test-Path -LiteralPath $Target) {
+        $item = Get-Item -LiteralPath $Target -Force
+        if (-not ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw "Refusing to replace existing non-link directory: $Target. Keep -InstallMode Copy, or move this confirmed policy Skill aside before linking it."
+        }
+
+        $linkTarget = @($item.Target)[0]
+        if ([string]::IsNullOrWhiteSpace($linkTarget)) {
+            throw "Cannot confirm the destination of existing link: $Target"
+        }
+
+        $expected = (Resolve-Path -LiteralPath $Source).Path.TrimEnd('\\')
+        $actual = (Resolve-Path -LiteralPath $linkTarget).Path.TrimEnd('\\')
+        if ($actual -ne $expected) {
+            throw "Existing link points elsewhere: $Target -> $linkTarget. Refusing to replace it."
+        }
+
+        return
+    }
+
+    New-Item -ItemType Junction -Path $Target -Target $Source | Out-Null
+}
+
+function Install-SkillDirectory {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Source,
+        [Parameter(Mandatory = $true)]
+        [string]$Target
+    )
+
+    if ($InstallMode -eq 'Link') {
+        Link-SkillDirectory -Source $Source -Target $Target
+    }
+    else {
+        Copy-SkillContents -Source $Source -Target $Target
+    }
+}
+
+foreach ($name in @('mvp-workflow-router', 'mvp-coding-policy', 'skill-intake-auditor', 'skill-security-auditor')) {
     $source = Join-Path $bundleRoot "skills\$name"
     $target = Join-Path $skillsTarget $name
-    Copy-SkillContents -Source $source -Target $target
-    Write-Output "Installed policy Skill: $name"
+    Install-SkillDirectory -Source $source -Target $target
+    Write-Output "Installed policy Skill ($InstallMode): $name"
 }
 
 if ($InstallGlobalManual) {
@@ -44,7 +93,7 @@ if ($InstallUserOwnedPatches) {
     Get-ChildItem -LiteralPath $patchRoot -Directory | Where-Object { $_.Name -ne 'README.md' } | ForEach-Object {
         $source = $_.FullName
         $target = Join-Path $skillsTarget $_.Name
-        Copy-SkillContents -Source $source -Target $target
-        Write-Output "Applied user-owned patch: $($_.Name)"
+        Install-SkillDirectory -Source $source -Target $target
+        Write-Output "Applied user-owned patch ($InstallMode): $($_.Name)"
     }
 }

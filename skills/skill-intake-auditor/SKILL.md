@@ -10,15 +10,16 @@ Audit before enabling a new or updated Skill. This is a decision aid, not an aut
 ## Workflow
 
 1. Inventory every `SKILL.md` below the supplied root and identify the source/version.
-2. Run `scripts/audit-skills.ps1` and read its risk flags in context.
-3. Classify each finding:
+2. Run `skill-security-auditor` first when the candidate is new, updated, linked from another repository, or includes scripts/dependencies. Resolve high-risk findings before enabling it.
+3. Run `scripts/audit-skills.ps1` and read its workflow-cost flags in context.
+4. Classify each finding:
    - **Keep:** already proportional.
    - **Condition:** add an observable trigger.
    - **Downgrade:** replace broad verification with a targeted gate.
    - **Move-Deep:** retain only for production/high-risk work.
    - **Remove:** no stable benefit.
-4. For a user-owned Skill, propose a small direct patch. For a system or plugin Skill, add a row to the compatibility registry; do not edit vendor cache.
-5. Validate with the scanner contract check and one representative audit. Stop for human acceptance before enabling a behavioral patch.
+5. For a user-owned Skill, propose a small direct patch. For a system or plugin Skill, add a row to the compatibility registry; do not edit vendor cache.
+6. Validate with the relevant scanner contract check and one representative audit. Stop for human acceptance before enabling a behavioral patch.
 
 ## Required audit dimensions
 

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "0.2.0",
+  "installationModes": ["copy", "link"],
+  "managedSkills": [
+    "mvp-workflow-router",
+    "mvp-coding-policy",
+    "skill-intake-auditor",
+    "skill-security-auditor"
+  ]
+}
