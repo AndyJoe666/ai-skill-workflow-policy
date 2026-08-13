@@ -39,7 +39,7 @@ v0.2 新增了静态安全审计和链接安装方式，但不改变 Router 的 
 ## 目录结构
 
 ```text
-ai-skill-workflow-policy/
+mvp-frist-skills-managed/
 ├─ OPERATING-MANUAL.md
 ├─ README.md
 ├─ POLICY-VERSION.json
